@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Structure</title>
+    <style>
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .folder:before {
+            content: "📁 ";
+        }
+        .file:before {
+            content: "🖼️ ";
+        }
+        .open-folder:before {
+            content: "📂 ";
+        }
+        .collapsed {
+            display: none;
+        }
+        .expanded {
+            display: block;
+        }
+        .folder {
+            cursor: pointer;
+        }
+        #redirectToUploadButton { /* Button position, that directs to the upload section */
+            position: fixed;
+            top: 10px; 
+            right: 10px; 
+        }
+        #refreshButton { /* Button position, that refreshes the page */
+            position: fixed;
+            top: 10px; 
+            right: 130px; 
+        }
+    </style>
+</head>
+<body>
+    <h1>File Structure</h1>
+    <!-- File Structure of the /dnshare/server/images/out directory - can be changed in server.py -->
+    <ul id="folderStructure">
+        {% for item in folder_structure %}
+            <li class="folder" onclick="toggleFolder(this)">
+                {{ item.name }}
+                <ul class="{% if item.type == 'folder' %}collapsed{% else %}expanded{% endif %}">
+                    {% if item.type == 'folder' %}
+                        {% for child in item.children %}
+                            <li class="{{ child.type }}">{{ child.name }}</li>
+                            Count: {{ child.count }}
+                        {% endfor %}
+                    {% endif %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+    
+    <!-- Button, that directs to the upload section -->
+    <button id="redirectToUploadButton" onclick="redirectToUpload()">Upload-Image(s)</button>
+
+    <!-- Button, that refreshed the page, as it's not dynamic -->
+    <button id="refreshButton" onclick="window.location.reload()">Refresh</button>
+
+    <script>
+        function toggleFolder(folder) {
+            var ul = folder.querySelector('ul');
+            if (ul.classList.contains('collapsed')) {
+                ul.classList.remove('collapsed');
+                ul.classList.add('expanded');
+            } else {
+                ul.classList.remove('expanded');
+                ul.classList.add('collapsed');
+            }
+        }
+
+        function redirectToUpload() {
+            window.location.href = "/";
+        }
+
+        // Add an event listener für every file element 
+        document.querySelectorAll('.file').forEach(function(element) {
+            element.addEventListener('click', function() {
+                var parent = element.parentElement.parentElement.outerText.split("\n")[0];
+                var filePath = element.textContent.trim(); // extract file path from the text content
+                var fileExtension = filePath.split('.').pop().toLowerCase(); // extract file extension
+        
+                // open the image in a new windows
+                var imageWindow = window.open();
+                var img = document.createElement('img');
+                // TODO change absolute path if you change the structure of the volume
+                img.src = "/images/out/" + parent + "/" + filePath;
+                imageWindow.document.body.appendChild(img);      
+            });
+        });
+        
+    </script>
+</body>
+</html>

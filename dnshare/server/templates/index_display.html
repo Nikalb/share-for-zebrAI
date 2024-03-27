@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Display</title>
+    <style>   
+        #redirectToDisplayButton { /* Button position, that directs to the upload section */
+            position: fixed;
+            top: 10px; 
+            right: 10px; 
+        }
+        .image-container {
+            margin-bottom: 20px;
+        }
+
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            display: block; /* make sure the image is centred */
+            margin: 0 auto; /* centers the image vertically */
+        }
+
+        .image-container p {
+            text-align: center;
+        }
+    </style>
+
+</head>
+<body>
+    {% for image_file in image_files %}
+    <div class="image-container">
+        <!-- the image is inserted with the path the name of the image -->
+        <img src="{{ url_for('static', filename=relative_newest_folder_path + '/' + image_file) }}">
+        <!-- text, that display the amount of fish that were counted for every image-->
+        <p>Es wurden {{ line_count }} Fischis gezählt. :)</p> 
+        {% endfor %}
+    </div>
+    
+    <!-- Button, that directs to the upload section -->
+    <button id="redirectToDisplayButton" onclick="redirectToUpload()">Upload-Image(s)</button>
+
+    <script>
+        function redirectToUpload() {
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>

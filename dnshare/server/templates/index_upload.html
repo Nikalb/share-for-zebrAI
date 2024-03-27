@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+    <style>
+        #uploadMessage {  /* Colour of the message, that pops up, when you sucessfully upload */
+            display: none; 
+            color: green;
+        }
+               
+        #redirectToDisplayButton { /* Button position, that directs to the display section */
+            position: fixed;
+            top: 10px; 
+            right: 10px; 
+        }
+
+        #redirectToFileStructureButton { /* Button position, that directs to the display section */
+            position: fixed;
+            top: 10px; 
+            right: 130px; 
+        }
+
+
+    </style>
+</head>
+<body>
+    <!-- Site header -->
+    <h1>zebrAI - For all your fish detection needs</h1>
+    <h2>Upload Image(s)</h2> 
+    <!-- Info message for supported file types by YOLO -->
+    <h3>allowed file formats are .jpg, .jpeg, .png</h3> 
+    <!-- Upload section for images to the container -->
+    <form id="uploadForm" action="/upload" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+        <input type="file" name="files[]" multiple accept="image/*">
+        <input type="submit" value="Upload"> 
+    </form>
+    <!-- Content of the message that pops up, when you press upload, with files attached -->
+    <div id="uploadMessage">Upload successful!</div>
+ 
+    <table> 
+        <tr>
+            <th>Manual:</th>
+            <th></th>
+        </tr>
+        <tr>
+            <td>Upload Image(s):</td>
+            <td>Upload images of of the formats .jpg/.jpeg/.png. While the model is still working you will see, that the pae is loading.</td>
+        </tr>
+        <tr>
+            <td>FileStructure-Image(s):</td>
+            <td>View the labeled data, which is structured by the upload time.</td>
+        </tr>
+        <tr>
+            <td>Display-Image(s):</td>
+            <td>See the output of your latest upload.</td>
+        </tr>
+    </table>
+
+    <!-- Button, to get to the display section -->
+    <button id="redirectToDisplayButton" onclick="redirectToDisplay()">Display-Image(s)</button>
+    <!-- Button, to get to the file structure section -->
+    <button id="redirectToFileStructureButton" onclick="redirectToFileStructure()">FileStructure-Image(s)</button>
+
+    <script>
+       function validateForm() { /* Error message that pops up, when you upload nothing */
+            var fileInput = document.querySelector('input[type="file"]');
+            if (fileInput.files.length === 0) {
+                alert("Please choose atleast one image :)");
+                return false; // Stop form submission
+            } 
+            
+            else { /* Confirm Upload message */
+                document.getElementById("uploadMessage").style.display = "block";
+                setTimeout(function(){
+                    document.getElementById("uploadMessage").style.display = "none";
+                }, 5000); // Hide message after 5 seconds
+                return true; // Continue with form submission
+            }
+        }
+
+        function redirectToDisplay() {
+            window.location.href = "/display";
+        }
+        function redirectToFileStructure() {
+            window.location.href = "/file_structure";
+        }
+    </script>
+</body>
+</html>

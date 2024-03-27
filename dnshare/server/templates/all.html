@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zebrAI Dashboard</title>
+    <style>
+        ul {
+            list-style-type: none;
+            padding-left: 20px;
+        }
+        .folder:before {
+            content: "📁 ";
+        }
+        .file:before {
+            content: "🖼️ ";
+        }
+        .open-folder:before {
+            content: "📂 ";
+        }
+        .collapsed {
+            display: none;
+        }
+        .expanded {
+            display: block;
+        }
+        .folder {
+            cursor: pointer;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .sections-container {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .section {
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+            width: 45%;
+        }
+        #uploadMessage {
+            color: green;
+        }
+        #uploadErrorMessage {
+            color: red;
+        }
+        #refreshButton { /* Button position, that refreshes the page */
+            position: flex;
+        }
+        #imageContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="sections-container">
+    <div class="section">
+        <!-- Site header -->
+        <h1>zebrAI - For all your fish detection needs</h1>
+        <h2>allowed file formats are .jpg, .jpeg, .png</h2> 
+        <form action="/" method="POST" enctype="multipart/form-data" onsubmit="return validateForm()">
+            <input type="file" name="files[]" multiple accept="image/*">
+            <input type="submit" value="Upload">
+        </form>
+    </div>
+
+    <div class="section">
+        <h1>File Structure</h1>
+        {% for item in folder_structure %}
+        <li class="folder" onclick="toggleFolder(this)">
+            {{ item.name }}
+            <ul class="{% if item.type == 'folder' %}collapsed{% else %}expanded{% endif %}">
+                {% if item.type == 'folder' %}
+                    {% for child in item.children %}
+                        <li class="{{ child.type }}">{{ child.name }}</li>Count: {{ child.count }}
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </li>
+        {% endfor %}
+        <!-- Button, that refreshed the page, as it's not dynamic -->
+        <button id="refreshButton" onclick="window.location.reload()">Refresh</button>
+    </div>
+</div>
+
+<div id="imageContainer" class="section">
+    {% for image_file in image_files %}
+    <div class="image-container">
+        <p>{{ image_file }}</p>
+        <!-- Das Bild wird mit dem Pfad und dem Namen des Bildes eingefügt -->
+        <img src="{{ url_for('static', filename=relative_newest_folder_path + '/' + image_file) }}">
+        {% if loop.index <= newest_folder_path_count|length %}
+        <p>Count: {{ newest_folder_path_count[loop.index -1] }}</p>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    function validateForm() {
+        var fileInput = document.querySelector('input[type="file"]');
+        if (fileInput.files.length === 0) {
+            alert("Please choose at least one image :)");
+            return false;
+        } else {
+            document.getElementById("uploadMessage").style.display = "block";
+            setTimeout(function() {
+                document.getElementById("uploadMessage").style.display = "none";
+            }, 5000);
+            return true;
+        }
+    }
+
+    function redirectToUpload() {
+        window.location.href = "/";
+    }
+
+    function toggleFolder(folder) {
+        var ul = folder.querySelector('ul');
+        if (ul.classList.contains('collapsed')) {
+            ul.classList.remove('collapsed');
+            ul.classList.add('expanded');
+        } else {
+            ul.classList.remove('expanded');
+            ul.classList.add('collapsed');
+        }
+    }
+
+    // Add event listener for every file element
+    document.querySelectorAll('.file').forEach(function(element) {
+        element.addEventListener('click', function() {
+            var parent = element.parentElement.parentElement.outerText.split("\n")[0];
+            var filePath = element.textContent.trim(); // extract file path from the text content
+            var fileExtension = filePath.split('.').pop().toLowerCase(); // extract file extension
+
+            // create image element
+            var img = document.createElement('img');
+            // set image source
+            img.src = "/images/out/" + parent + "/" + filePath;      
+            // create element for displaying file name
+            var fileNameElement = document.createElement('p');
+            // set file name text
+            fileNameElement.textContent = filePath;
+
+            // clear previous content in image container
+            var imageContainer = document.getElementById('imageContainer');
+            imageContainer.innerHTML = '';
+
+            if (filePath.endsWith(".jpg"))
+                var filePathTxt = filePath.replace('.jpg', '.txt');
+            else if(filePath.endsWith(".jpeg"))
+                var filePathTxt = filePath.replace('.jpeg', '.txt');
+            else if(filePath.endsWith(".png"))
+                var filePathTxt = filePath.replace('.png', '.txt');
+            else
+            console.error
+
+            var txt_src = "/images/count/" + parent + "/" + filePathTxt;
+            
+            fetch(txt_src)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.text();
+                })
+                .then(txtContent => {
+                    var txtContentElement = document.createElement('p');
+                    txtContentElement.textContent = "Count: " + txtContent;
+                    // append count element to image container   
+                    imageContainer.appendChild(txtContentElement);
+                })
+                .catch(error => {
+                    console.error('There has been a problem with your fetch operation:', error);
+            });
+            // append image and file name element to image container          
+            imageContainer.appendChild(fileNameElement);
+            imageContainer.appendChild(img);
+        });
+    });
+</script>
+</body>
+</html>
