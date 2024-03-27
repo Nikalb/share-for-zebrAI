@@ -9,17 +9,17 @@ The goal was it to set up a version of Yolov4 with the loaded Yolo-Fish model in
 To access the container more easily, a python web server was added, to upload and download data more easily.
 
 # Steps for setup
-
-- clone the following two github projects onto your server
-- 
--
+- create directory zebrai 
+- clone the following two github projects into zebrai
+- https://github.com/Nikalb/darknet
+- https://github.com/Nikalb/share-for-zebrAI
 - configuration parts are marked by TODO as comments
 - build a docker container from /darknet
 - run the docker container from /darknet
 - access the container via localhost:5656 (if not configured otherwise)
 
 ## How to download weights
-- change into the directory /zebrai/dnshare/server/weights/ 
+- change into the directory /dnshare/server/weights/ 
 - download the weights from Google Drive:
 - curl "https://drive.usercontent.google.com/download?id=1f9rmB3kYFGkUaCtIkYgkHD4gc2Mtt13V&confirm=xxx" -o merge_yolo-fish-1.weights
 - curl "https://drive.usercontent.google.com/download?id=1EYq2nl-VlflaqIcWNI2mZH9ew_Aa4R5-&confirm=xxx" -o merge_yolo-fish-2.weights
